@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DepartureMono Font Face */
+
 @font-face {
   font-family: 'DepartureMono';
   src: url('../assets/fonts/DepartureMono-Regular.otf') format('opentype');

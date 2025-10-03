@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DepartureMono Font Face */
+@font-face {
+  font-family: 'DepartureMono';
+  src: url('../assets/fonts/DepartureMono-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  overflow-x: hidden;
+  font-family: 'DepartureMono', 'Courier New', 'Monaco', 'Menlo', monospace;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+
+.top-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 1rem 2rem;
+  pointer-events: none;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  pointer-events: auto;
+  text-decoration: none;
+  font-family: 'DepartureMono', monospace;
+}
+
+.nav {
+  display: flex;
+  gap: 2rem;
+  pointer-events: auto;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+/* Center Content - Minimal Overlay */
+.center-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.main-title {
+  font-size: 3.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.main-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 3rem;
+}
+
+
+.input-box {
+  position: relative;
+  width: 700px;
+  max-width: 90vw;
+  background: rgba(31, 41, 55, 0.9);
+  border: 1px solid rgba(91, 17, 111, 0.936);
+  border-radius: 16px;
+  display: flex;
+  align-items: flex-start;
+  margin: 0 auto 2rem;
+  pointer-events: auto;
+  backdrop-filter: blur(15px);
+  min-height: 120px;
+  padding: 8px;
+  opacity: 0.9;
+}
+
+.add-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  align-self: flex-start;
+}
+
+.add-btn:hover {
+  color: #ffffff;
+}
+
+.main-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #ffffff;
+  padding: 1.25rem 1rem;
+  resize: none;
+  font-family: 'DepartureMono', 'Courier New', monospace;
+  line-height: 1.6;
+  min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.main-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.plan-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+  align-self: flex-end;
+}
+
+.plan-btn:hover {
+  color: #ffffff;
+}
+
+.arrow {
+  width: 14px;
+  height: 14px;
+}
+
+
+.import-options {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  pointer-events: auto;
+}
+
+.import-btn {
+  background: none;
+  border: 1px solid rgba(75, 85, 99, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.import-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2.5rem;
+  }
+  
+  .input-box {
+    width: 90vw;
+  }
+  
+  .nav {
+    display: none;
+  }
+}

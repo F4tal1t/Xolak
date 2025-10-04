@@ -34,24 +34,19 @@ const getApiBaseUrl = () => {
 const API_BASE_URL = getApiBaseUrl();
 
 export const queryAgent = async (query: string): Promise<QueryResponse> => {
-  console.log('🚀 Making API request to:', `${API_BASE_URL}/query-agent`);
+  const apiUrl = 'http://localhost:8080/query-agent';
+  console.log('🚀 Making API request to:', apiUrl);
   console.log('📝 Query:', query);
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-    const response = await fetch(`${API_BASE_URL}/query-agent`, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       body: JSON.stringify({ query }),
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     console.log('📡 Response status:', response.status);
     console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
@@ -83,17 +78,11 @@ export const queryAgent = async (query: string): Promise<QueryResponse> => {
 
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
-    console.log('🏥 Checking backend health at:', `${API_BASE_URL}/health`);
+    console.log('🏥 Checking backend health at: http://localhost:8080/health');
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-    
-    const response = await fetch(`${API_BASE_URL}/health`, {
+    const response = await fetch('http://localhost:8080/health', {
       method: 'GET',
-      signal: controller.signal,
     });
-    
-    clearTimeout(timeoutId);
     
     console.log('🏥 Health check response:', response.status);
     return response.ok;

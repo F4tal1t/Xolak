@@ -94,7 +94,7 @@ const Chat: React.FC = () => {
                 setMessages(prev => [...prev, {
                     id: Date.now().toString(),
                     sender: "bot",
-                    text: "⚠️ Warning: I'm having trouble connecting to my backend server. Please make sure the backend is running on port 8080. You can still try asking questions, but I might not be able to provide real-time repository recommendations.",
+                    text: "🤖 I'm ready to help you find great repositories! The backend is running with mock data while we work on the connection. Try asking me about your programming interests!",
                     timestamp: new Date()
                 }]);
             }
@@ -132,19 +132,39 @@ const Chat: React.FC = () => {
 
         try {
             console.log('🔄 Sending query to backend:', input);
-            const response = await queryAgent(input);
+            console.log('🌐 Current window.location:', window.location.href);
             
-            // Remove loading message and add response
-            setMessages((msgs) => {
-                const withoutLoading = msgs.filter(msg => !msg.isLoading);
-                return [...withoutLoading, {
-                    id: Date.now().toString(),
-                    sender: "bot",
-                    text: response.message || "Here are some great repositories for you:",
-                    repositories: response.recommendations,
-                    timestamp: new Date()
-                }];
-            });
+            const response = await queryAgent(input);
+            console.log('✅ Got response from backend:', response);
+            
+            // Check if we have recommendations
+            if (response && response.recommendations && response.recommendations.length > 0) {
+                console.log('📦 Found recommendations:', response.recommendations.length);
+                
+                // Remove loading message and add response
+                setMessages((msgs) => {
+                    const withoutLoading = msgs.filter(msg => !msg.isLoading);
+                    return [...withoutLoading, {
+                        id: Date.now().toString(),
+                        sender: "bot",
+                        text: response.message || "Here are some great repositories for you:",
+                        repositories: response.recommendations,
+                        timestamp: new Date()
+                    }];
+                });
+            } else {
+                console.log('⚠️ No recommendations found in response');
+                // Remove loading message and add response without repos
+                setMessages((msgs) => {
+                    const withoutLoading = msgs.filter(msg => !msg.isLoading);
+                    return [...withoutLoading, {
+                        id: Date.now().toString(),
+                        sender: "bot",
+                        text: response.message || "I received your query but couldn't find specific repository recommendations.",
+                        timestamp: new Date()
+                    }];
+                });
+            }
             
             // Update connection status on successful request
             setBackendConnected(true);

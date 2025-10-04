@@ -1,5 +1,8 @@
 # Xolak - AI-Powered OSS Project Recommender
 
+<img width="1848" height="883" alt="image" src="https://github.com/user-attachments/assets/98efdf7c-0c17-40cd-b1a6-e5a348f21111" />
+
+
 [![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2025-orange.svg)](https://hacktoberfest.digitalocean.com/)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org/)

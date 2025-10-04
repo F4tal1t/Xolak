@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,9 +42,12 @@ func main() {
 
 	// Add CORS middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
+		AllowOrigins:     "*",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Requested-With",
+		AllowCredentials: false,
+		ExposeHeaders:    "Content-Length",
+		MaxAge:           86400,
 	}))
 
 	// Health check endpoint
@@ -92,104 +96,215 @@ func handleQueryAgent(c *fiber.Ctx) error {
 		})
 	}
 
-	// Try to parse the agent response as JSON
-	var jsonResponse interface{}
-	if err := json.Unmarshal([]byte(agentResponse), &jsonResponse); err != nil {
-		// If it's not valid JSON, wrap it in a response object
-		return c.JSON(fiber.Map{
-			"message": agentResponse,
-			"query":   req.Query,
+	// Extract and process the content from Gradient response
+	processedResponse, err := processGradientResponse(agentResponse)
+	if err != nil {
+		log.Printf("Error processing Gradient response: %v", err)
+		return c.Status(500).JSON(fiber.Map{
+			"error": "Failed to process AI recommendations",
 		})
 	}
 
-	// Return the agent's JSON response directly
-	return c.JSON(jsonResponse)
+	return c.JSON(processedResponse)
 }
 
-func callGradientAPI(query string) (string, error) {
-	agentID := os.Getenv("GRADIENT_AGENT_ID")
+func callGradientAPI(query string) (map[string]interface{}, error) {
+	// Use the correct Gradient API endpoint with POST request
+	apiURL := "https://svzed6csddujlan4fle3rd2c.agents.do-ai.run/api/v1/chat/completions"
 	
-	if agentID == "" {
-		return "", fmt.Errorf("GRADIENT_AGENT_ID environment variable not set")
+	// Create the request payload according to the API spec
+	payload := map[string]interface{}{
+		"messages": []map[string]interface{}{
+			{
+				"role": "user",
+				"content": query,
+			},
+		},
+		"stream": false,
+		"max_tokens": 1000,
 	}
-
-	log.Printf("Calling Gradient Agent ID: %s with query: %s", agentID, query)
-
-	// Use the agent ID directly to call the Gradient API
-	url := fmt.Sprintf("https://api.gradient.ai/v1/agents/%s/invoke", agentID)
 	
-	requestBody := GradientRequest{Query: query}
-	jsonData, err := json.Marshal(requestBody)
+	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %v", err)
+		log.Printf("Error marshaling payload: %v", err)
+		return nil, fmt.Errorf("failed to marshal payload: %v", err)
 	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	
+	log.Printf("Calling Gradient API with URL: %s", apiURL)
+	log.Printf("Payload: %s", string(jsonPayload))
+	
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	
+	req, err := http.NewRequest("POST", apiURL, strings.NewReader(string(jsonPayload)))
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %v", err)
+		log.Printf("Error creating request: %v", err)
+		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
-
+	
 	req.Header.Set("Content-Type", "application/json")
-	// Using Agent ID directly - no bearer token needed
-	req.Header.Set("X-Agent-ID", agentID)
-
-	client := &http.Client{Timeout: 30 * time.Second}
+	
+	// Use the agent ID as the Bearer token
+	if agentID := os.Getenv("GRADIENT_AGENT_ID"); agentID != "" {
+		req.Header.Set("Authorization", "Bearer "+agentID)
+		log.Printf("Using agent ID for authentication")
+	} else {
+		log.Printf("No agent ID found in GRADIENT_AGENT_ID environment variable")
+	}
+	
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Network error calling Gradient API: %v", err)
-		// Return a mock response for now while we figure out the correct endpoint
-		mockResponse := fmt.Sprintf(`{
-			"recommendations": [
-				{
-					"name": "example/python-starter",
-					"url": "https://github.com/example/python-starter",
-					"description": "A beginner-friendly Python project for %s",
-					"language": "Python",
-					"stars": 125,
-					"difficulty": "Beginner",
-					"good_first_issues": [
-						{
-							"title": "Add unit tests for helper functions",
-							"url": "https://github.com/example/python-starter/issues/5"
-						},
-						{
-							"title": "Update documentation with examples",
-							"url": "https://github.com/example/python-starter/issues/8"
-						}
-					]
-				},
-				{
-					"name": "awesome-project/contributors-welcome",
-					"url": "https://github.com/awesome-project/contributors-welcome",
-					"description": "Open source project looking for %s contributors",
-					"language": "Python",
-					"stars": 89,
-					"difficulty": "Beginner",
-					"good_first_issues": [
-						{
-							"title": "Fix typos in README",
-							"url": "https://github.com/awesome-project/contributors-welcome/issues/12"
-						}
-					]
-				}
-			],
-			"message": "Repository recommendations for: %s (Note: Using mock data - verify Gradient API endpoint)",
-			"agent_id": "%s"
-		}`, query, query, query, agentID)
-		return mockResponse, nil
+		log.Printf("Error calling Gradient API: %v", err)
+		return nil, fmt.Errorf("failed to call gradient API: %v", err)
 	}
 	defer resp.Body.Close()
-
+	
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading response body: %v", err)
+		return nil, fmt.Errorf("failed to read response: %v", err)
+	}
+	
+	log.Printf("Gradient API response status: %d", resp.StatusCode)
+	log.Printf("Gradient API response body: %s", string(body))
+	
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("gradient API returned status %d", resp.StatusCode)
+		return nil, fmt.Errorf("gradient API returned status %d: %s", resp.StatusCode, string(body))
 	}
-
-	var gradientResp GradientResponse
-	if err := json.NewDecoder(resp.Body).Decode(&gradientResp); err != nil {
-		return "", fmt.Errorf("failed to decode response: %v", err)
+	
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		log.Printf("Error unmarshaling JSON: %v", err)
+		return nil, fmt.Errorf("failed to parse response: %v", err)
 	}
+	
+	return result, nil
+}
 
-	return gradientResp.Result, nil
+func processGradientResponse(gradientResp map[string]interface{}) (map[string]interface{}, error) {
+	log.Printf("Processing Gradient response")
+	
+	// Extract choices array
+	choices, ok := gradientResp["choices"].([]interface{})
+	if !ok || len(choices) == 0 {
+		return nil, fmt.Errorf("no choices found in gradient response")
+	}
+	
+	// Get first choice
+	firstChoice, ok := choices[0].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid choice format")
+	}
+	
+	// Extract message
+	message, ok := firstChoice["message"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("no message found in choice")
+	}
+	
+	// Extract content
+	content, ok := message["content"].(string)
+	if !ok {
+		return nil, fmt.Errorf("no content found in message")
+	}
+	
+	log.Printf("Extracted content: %s", content)
+	
+	// Remove markdown code block formatting if present
+	cleanContent := content
+	if strings.Contains(content, "```json") {
+		// Find the start and end of the JSON block
+		startIdx := strings.Index(content, "```json")
+		if startIdx != -1 {
+			startIdx += 7 // length of "```json"
+			// Skip any newlines after ```json
+			for startIdx < len(content) && (content[startIdx] == '\n' || content[startIdx] == '\r') {
+				startIdx++
+			}
+			
+			endIdx := strings.Index(content[startIdx:], "```")
+			if endIdx != -1 {
+				cleanContent = content[startIdx : startIdx+endIdx]
+			} else {
+				cleanContent = content[startIdx:]
+			}
+		}
+	}
+	
+	// Clean up any extra whitespace
+	cleanContent = strings.TrimSpace(cleanContent)
+	log.Printf("Cleaned content: %s", cleanContent)
+	
+	// Parse the JSON content
+	var recommendations map[string]interface{}
+	if err := json.Unmarshal([]byte(cleanContent), &recommendations); err != nil {
+		log.Printf("Error parsing recommendations JSON: %v", err)
+		log.Printf("Content was: %s", cleanContent)
+		return nil, fmt.Errorf("failed to parse recommendations: %v", err)
+	}
+	
+	log.Printf("Successfully parsed recommendations: %+v", recommendations)
+	
+	// Transform the recommendations to match frontend expectations
+	if recsArray, ok := recommendations["recommendations"].([]interface{}); ok {
+		transformedRecs := make([]map[string]interface{}, 0, len(recsArray))
+		
+		for _, rec := range recsArray {
+			if recMap, ok := rec.(map[string]interface{}); ok {
+				transformed := make(map[string]interface{})
+				
+				// Map fields to match frontend interface
+				if repoName, exists := recMap["repo_name"]; exists {
+					transformed["name"] = repoName
+				}
+				if link, exists := recMap["link"]; exists {
+					transformed["url"] = link
+				}
+				if description, exists := recMap["description"]; exists {
+					transformed["description"] = description
+				}
+				
+				// Set default values for missing fields
+				transformed["language"] = "Unknown"
+				transformed["stars"] = 0
+				transformed["difficulty"] = "Beginner"
+				
+				// Transform issues to good_first_issues
+				if issues, exists := recMap["issues"]; exists {
+					if issuesArray, ok := issues.([]interface{}); ok {
+						goodFirstIssues := make([]map[string]interface{}, 0, len(issuesArray))
+						for _, issue := range issuesArray {
+							if issueMap, ok := issue.(map[string]interface{}); ok {
+								goodFirstIssue := make(map[string]interface{})
+								if title, exists := issueMap["title"]; exists {
+									goodFirstIssue["title"] = title
+								}
+								if link, exists := issueMap["link"]; exists {
+									goodFirstIssue["url"] = link
+								}
+								goodFirstIssues = append(goodFirstIssues, goodFirstIssue)
+							}
+						}
+						transformed["good_first_issues"] = goodFirstIssues
+					}
+				} else {
+					transformed["good_first_issues"] = []map[string]interface{}{}
+				}
+				
+				transformedRecs = append(transformedRecs, transformed)
+			}
+		}
+		
+		recommendations["recommendations"] = transformedRecs
+	}
+	
+	// Add a message field for the frontend
+	if recommendations["message"] == nil {
+		recommendations["message"] = "Here are some great repositories for you:"
+	}
+	
+	return recommendations, nil
 }
 
 

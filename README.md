@@ -1,6 +1,7 @@
 # Xolak - AI-Powered OSS Project Recommender
 
-<img width="1848" height="883" alt="image" src="https://github.com/user-attachments/assets/98efdf7c-0c17-40cd-b1a6-e5a348f21111" />
+<img width="900" height="440" alt="image" src="https://github.com/user-attachments/assets/98efdf7c-0c17-40cd-b1a6-e5a348f21111" />
+<img width="900" height="440" alt="image" src="https://github.com/user-attachments/assets/6fcce2f9-f0eb-41e8-85af-01fcdf5dc3dd" />
 
 
 [![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2025-orange.svg)](https://hacktoberfest.digitalocean.com/)

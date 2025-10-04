@@ -11,6 +11,7 @@ dist/
 *.dylib
 *.test
 *.out
+plan.json
 
 # Environment files
 .env

@@ -202,6 +202,64 @@ html, body, #root {
 }
 
 
+
+/* RotatingText Container - Contains animations */
+.rotating-text-container {
+  display: block;
+  overflow: hidden;
+  position: relative;
+  height: 1.2em;
+  width: 100%;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.rotating-text-main {
+  display: inline-block;
+  color: #a855f7;
+  font-weight: 600;
+  padding: 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.rotating-text-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(147, 51, 234, 0.1);
+  border-radius: 0.5rem;
+  filter: blur(6px);
+  z-index: -1;
+  animation: rotatingTextPulse 3s ease-in-out infinite alternate;
+}
+
+.rotating-text-split {
+  overflow: hidden;
+  display: inline-block;
+}
+
+/* Simple text visibility */
+.rotating-text-main .text-rotate {
+  color: #a855f7;
+}
+
+.rotating-text-main .text-rotate-element {
+  color: inherit;
+}
+
+@keyframes rotatingTextPulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
 @media (max-width: 768px) {
   .main-title {
     font-size: 2.5rem;

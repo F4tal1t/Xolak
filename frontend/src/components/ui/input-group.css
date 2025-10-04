@@ -1,0 +1,167 @@
+/* Input Group Component - Xolak Terminal Theme */
+.input-group {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  font-family: 'DepartureMono', 'Courier New', monospace;
+  min-height: 2.25rem;
+}
+
+.input-group:has(textarea) {
+  height: auto;
+  align-items: flex-start;
+}
+
+.input-group:focus-within {
+  border-color: rgba(147, 51, 234, 0.5);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+.input-group[aria-invalid="true"] {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Input Group Addon */
+.input-group-addon {
+  display: flex;
+  height: auto;
+  cursor: text;
+  user-select: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease;
+}
+
+.input-group-addon:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.input-group-addon--inline-start {
+  order: -1;
+  padding-left: 0.75rem;
+}
+
+.input-group-addon--inline-end {
+  order: 1;
+  padding-right: 0.75rem;
+}
+
+.input-group-addon--block-start {
+  order: -1;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.75rem 0.75rem 0.375rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-group-addon--block-end {
+  order: 1;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.375rem 0.75rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Input Group Button */
+.input-group-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  box-shadow: none;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.input-group-button--xs {
+  height: 1.5rem;
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.input-group-button--sm {
+  height: 2rem;
+  gap: 0.375rem;
+  padding: 0 0.625rem;
+}
+
+.input-group-button--icon-xs {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+}
+
+.input-group-button--icon-sm {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+/* Input Group Text */
+.input-group-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.input-group-text svg {
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+}
+
+/* Input Group Input */
+.input-group-input {
+  flex: 1;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.input-group-input:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Input Group Textarea */
+.input-group-textarea {
+  flex: 1;
+  resize: none;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.75rem;
+  box-shadow: none;
+}
+
+.input-group-textarea:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .input-group-addon {
+    font-size: 0.8125rem;
+  }
+  
+  .input-group-button {
+    font-size: 0.8125rem;
+  }
+}

@@ -1,10 +1,11 @@
 import React from 'react';
 import FaultyTerminal from './components/FaultyTerminal';
+import RotatingText from './components/RotatingText'
 
 function App() {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      {/* Terminal Background - Fully Interactive */}
+      
       <FaultyTerminal
         scale={1.5}
         gridMul={[3, 1]}
@@ -25,7 +26,7 @@ function App() {
         brightness={0.8}
       />
       
-      {/* Minimal Header - No Background Blocking */}
+      
       <header className="top-header">
         <div className="header-content">
           <h1 className="logo">Xolak</h1>
@@ -37,12 +38,27 @@ function App() {
         </div>
       </header>
 
-      {/* Centered Content - Minimal Overlay */}
+      
       <div className="center-content">
-        <h1 className="main-title">Build your next project faster</h1>
+        <h1 className="main-title">Get your first
+        <div className="rotating-text-container">
+          <RotatingText
+            texts={['contribution', 'pull request', 'merge', 'issue', 'commit']}
+            mainClassName="rotating-text-main"
+            staggerFrom="first"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-120%" }}
+            staggerDuration={0.025}
+            splitLevelClassName="rotating-text-split"
+            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            rotationInterval={3000}
+          />
+        </div>
+        </h1>
         <p className="main-subtitle">Discover open source projects perfect for Hacktoberfest 2025 and beyond</p>
         
-        {/* Main Input Box - Expanded Bolt.new Style */}
+        
         <div className="input-box">
           <button className="add-btn">+</button>
           <textarea 

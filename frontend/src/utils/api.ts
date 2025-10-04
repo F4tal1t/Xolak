@@ -34,7 +34,7 @@ const getApiBaseUrl = () => {
 const API_BASE_URL = getApiBaseUrl();
 
 export const queryAgent = async (query: string): Promise<QueryResponse> => {
-  const apiUrl = 'http://localhost:8080/query-agent';
+  const apiUrl = '/api/query-agent';
   console.log('🚀 Making API request to:', apiUrl);
   console.log('📝 Query:', query);
 
@@ -78,9 +78,9 @@ export const queryAgent = async (query: string): Promise<QueryResponse> => {
 
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
-    console.log('🏥 Checking backend health at: http://localhost:8080/health');
+    console.log('🏥 Checking backend health at: /api/health');
     
-    const response = await fetch('http://localhost:8080/health', {
+    const response = await fetch('/api/health', {
       method: 'GET',
     });
     
